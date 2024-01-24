@@ -1,3 +1,4 @@
+using System.Buffers.Text;
 using System.Globalization;
 using System.Text;
 using MySqlConnector.Protocol;
@@ -28,7 +29,10 @@ internal sealed class TypeMapper
 		var typeByte = AddDbTypeMapping(new(typeof(byte), new[] { DbType.Byte }, convert: static o => Convert.ToByte(o, CultureInfo.InvariantCulture)));
 		var typeShort = AddDbTypeMapping(new(typeof(short), new[] { DbType.Int16 }, convert: static o => Convert.ToInt16(o, CultureInfo.InvariantCulture)));
 		var typeUshort = AddDbTypeMapping(new(typeof(ushort), new[] { DbType.UInt16 }, convert: static o => Convert.ToUInt16(o, CultureInfo.InvariantCulture)));
-		var typeInt = AddDbTypeMapping(new(typeof(int), new[] { DbType.Int32 }, convert: static o => Convert.ToInt32(o, CultureInfo.InvariantCulture)));
+		var typeInt = AddDbTypeMapping(new(typeof(int), new[] { DbType.Int32 }, convert: static o => o switch {
+			byte[] s => Utf8Parser.TryParse(s, out int value, out var bytesConsumed) ? value : 0,
+			object s => Convert.ToInt32(o, CultureInfo.InvariantCulture),
+		}));
 		var typeUint = AddDbTypeMapping(new(typeof(uint), new[] { DbType.UInt32 }, convert: static o => Convert.ToUInt32(o, CultureInfo.InvariantCulture)));
 		var typeLong = AddDbTypeMapping(new(typeof(long), new[] { DbType.Int64 }, convert: static o => Convert.ToInt64(o, CultureInfo.InvariantCulture)));
 		var typeUlong = AddDbTypeMapping(new(typeof(ulong), new[] { DbType.UInt64 }, convert: static o => Convert.ToUInt64(o, CultureInfo.InvariantCulture)));
