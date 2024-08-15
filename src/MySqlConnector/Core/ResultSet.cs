@@ -65,8 +65,11 @@ internal sealed class ResultSet(MySqlDataReader dataReader)
 							throw new NotSupportedException("To use LOAD DATA LOCAL INFILE, set AllowLoadLocalInfile=true in the connection string. See https://fl.vu/mysql-load-data");
 						var localInfile = LocalInfilePayload.Create(payload.Span);
 						var hasSourcePrefix = localInfile.FileName.StartsWith(MySqlBulkLoader.SourcePrefix, StringComparison.Ordinal);
+						#warning 'Custom commented out to avoid SSL host verification - GCT-3961'
+						/*
 						if (!IsHostVerified(Connection) && !hasSourcePrefix)
 							throw new NotSupportedException("Use SourceStream or SslMode >= VerifyCA for LOAD DATA LOCAL INFILE. See https://fl.vu/mysql-load-data");
+						*/
 
 						var source = hasSourcePrefix ?
 							MySqlBulkLoader.GetAndRemoveSource(localInfile.FileName) :
